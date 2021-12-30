@@ -4,9 +4,9 @@
         <div id="tags">
             <ul v-for="(item,k) in datas" :key="k" :id="item.openid">
                 <li>
-                <a href="javascript:void(0);" :style="{color: item.win ? 'red' : 'yellow'}">
+                <a href="javascript:void(0);" :style="{color: item.win > 0 ? 'red' : 'yellow'}">
                     <span>{{item.nickname}}</span>
-                    <img :width="item.win ? 80 : 40" :height="item.win ? 80 : 40" :src="item.headimgurl" />
+                    <img :width="item.win > 0 ? 80 : 40" :height="item.win ? 80 : 40" :src="item.headimgurl" />
                 </a>
                 </li>
             </ul>
@@ -33,7 +33,7 @@ export default {
               city:"",
               province:"",
               country:"",
-              win: false,
+              win: -1,
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
               privilege:[]
               },
@@ -45,7 +45,7 @@ export default {
               city:"",
               province:"",
               country:"",
-              win: false,
+              win: -1,
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
               privilege:[]
               },
@@ -56,7 +56,7 @@ export default {
               language:"",
               city:"",
               province:"",
-              win: false,
+              win: -1,
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
               privilege:[]
@@ -67,7 +67,7 @@ export default {
               sex:0,
               language:"",
               city:"",
-              win: false,
+              win: -1,
               province:"",
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
@@ -79,7 +79,7 @@ export default {
               sex:0,
               language:"",
               city:"",
-              win: false,
+              win: -1,
               province:"",
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
@@ -91,7 +91,7 @@ export default {
               sex:0,
               language:"",
               city:"",
-              win: false,
+              win: -1,
               province:"",
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
@@ -104,7 +104,7 @@ export default {
               language:"",
               city:"",
               province:"",
-              win: false,
+              win: -1,
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
               privilege:[]
@@ -115,7 +115,7 @@ export default {
               sex:0,
               language:"",
               city:"",
-              win: false,
+              win: -1,
               province:"",
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
@@ -127,7 +127,7 @@ export default {
               sex:0,
               language:"",
               city:"",
-              win: false,
+              win: -1,
               province:"",
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
@@ -139,7 +139,7 @@ export default {
               sex:0,
               language:"",
               city:"",
-              win: false,
+              win: -1,
               province:"",
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
@@ -151,7 +151,7 @@ export default {
               sex:0,
               language:"",
               city:"",
-              win: false,
+              win: -1,
               province:"",
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
@@ -163,7 +163,7 @@ export default {
               sex:0,
               language:"",
               city:"",
-              win: false,
+              win: -1,
               province:"",
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
@@ -175,7 +175,7 @@ export default {
               sex:0,
               language:"",
               city:"",
-              win: false,
+              win: -1,
               province:"",
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
@@ -187,7 +187,7 @@ export default {
               sex:0,
               language:"",
               city:"",
-              win: false,
+              win: -1,
               province:"",
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
@@ -199,7 +199,7 @@ export default {
               sex:0,
               language:"",
               city:"",
-              win: false,
+              win: -1,
               province:"",
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
@@ -211,7 +211,7 @@ export default {
               sex:0,
               language:"",
               city:"",
-              win: false,
+              win: -1,
               province:"",
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
@@ -223,7 +223,7 @@ export default {
               sex:0,
               language:"",
               city:"",
-              win: false,
+              win: -1,
               province:"",
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
@@ -235,7 +235,7 @@ export default {
               sex:0,
               language:"",
               city:"",
-              win: false,
+              win: -1,
               province:"",
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
@@ -247,7 +247,7 @@ export default {
               sex:0,
               language:"",
               city:"",
-              win: false,
+              win: -1,
               province:"",
               country:"",
               headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
@@ -290,7 +290,8 @@ export default {
     },
     createCanvas() {
       const canvas = document.createElement('canvas');
-      canvas.width = document.getElementById('root').offsetWidth * 0.8;
+    //   canvas.width = document.getElementById('root').offsetWidth * 0.8;
+    canvas.width = 450;
       canvas.height = 450;
       canvas.id = 'rootcanvas';
       this.$el.querySelector('#main').appendChild(canvas);
@@ -308,12 +309,13 @@ export default {
         shape: "sphere",
         textColour: null,
         lock: 'xy',
+        noMouse: true
       });
     },
     toggle() {
       window.TagCanvas.SetSpeed('rootcanvas', [3, 3]);
         let a = this.getRandomInt(0,this.datas.length)
-        this.datas[a].win = true
+        this.datas[a].win = 1
         console.log(a)
         setTimeout(()=>{
             window.TagCanvas.TagToFront('rootcanvas', { index : a  });
@@ -329,11 +331,14 @@ export default {
 #root {
     width: 100%
     height: 100%
+    
     position: relative
     display: flex
 }
 #main {
     height: 100%
+    border-radius: 50%
+    background:linear-gradient(180deg,rgba(31,29,44,.8),rgba(6,4,25,.8))
     #tags{
         height: 0  
         overflow: hidden
