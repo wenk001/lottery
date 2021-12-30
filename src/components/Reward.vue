@@ -1,7 +1,7 @@
 <template>
   <div class="reward">
     <div class="reward-list">
-        <el-carousel height="350px" indicator-position="none">
+        <el-carousel ref="carousel" height="350px" indicator-position="none" arrow="always" :autoplay="false" @change="changeReward">
             <el-carousel-item v-for="(i,k) in rewardData" :key="k">
                 <div class="reward-card">
                     <span class="level">{{i.level}}</span>
@@ -12,15 +12,55 @@
                         :preview-src-list="[i.pic]">
                     </el-image>
                     <span class="name">{{i.name}}</span>
-                    <span class="num">奖品剩余数量：<b>{{i.num}}</b></span>
+                    <span class="num">奖品剩余数量：
+                        <b style="color:rgba(226,186,48,0.82)" @mouseenter="editNum = true">{{i.num}}</b>
+                    </span>
                 </div>
             </el-carousel-item>
         </el-carousel>
-        <div class="tip">抽奖参与人数</div>
+        <div class="but but1" @click="addReward">添加奖品</div>
+        <div class="but but2" @click="changeRewardInfo">修改奖品</div>
+        <div class="but but3" @click="randomReward">随机选择</div>
     </div>
     <div class="reward-taget">
-        <Lottery/>
+        <Lottery :reward="activeReward"/>
     </div>
+    <el-dialog
+    :title="title"
+    :visible.sync="editCard"
+    width="400px">
+    <el-form ref="form" :model="form" label-width="80px">
+        
+        <el-form-item label="奖品等级">
+            <el-select style="width:200px" v-model="form.level" placeholder="请选择奖品等级">
+            <el-option label="一等奖" value="一等奖"></el-option>
+            <el-option label="二等奖" value="二等奖"></el-option>
+            <el-option label="三等奖" value="三等奖"></el-option>
+            <el-option label="特别奖" value="特别奖"></el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="奖品名称">
+            <el-input style="width:200px" v-model="form.name"></el-input>
+        </el-form-item>
+        <el-form-item label="奖品数量">
+            <el-input-number style="width:200px" v-model="form.num" controls-position="right" :min="1" :max="10"></el-input-number>
+        </el-form-item>
+        <el-form-item label="奖品图片">
+            <input v-if="editCard" type='file' id="uploadBannerImage" @change="readURL" />
+            <br>
+            <img v-if="imgUrl" style="width:180px;height:180px" :src="imgUrl">
+            <div class="hiddle">
+                <img v-if="imgUrl" id="bannerImg" :src="imgUrl">
+            </div>    
+        </el-form-item>
+        <el-form-item>
+        <el-button size="mini" @click="editCard = false">取 消</el-button>
+        <el-button v-show="title === '修改奖品'" size="mini" @click="del">删 除</el-button>
+        <el-button size="mini" type="primary" @click="save">确 定</el-button>
+        </el-form-item>
+        </el-form>
+    
+    </el-dialog>
   </div>
 </template>
 
@@ -33,24 +73,17 @@ export default {
   },
   data () {
     return {
-     rewardData:[{
-         level: '一等奖',
-         pic: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
-         name:'switch（国行版）',
-         num: 10
-     },
-     {
-         level: '二等奖',
-         pic: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
-         name:'switch（日版）',
-         num: 50
-     },
-     {
-         level: '三等奖',
-         pic: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
-         name:'华为最新款',
-         num: 100
-     }]
+        imgUrl:'',
+        form: {
+          name: '大吉大利',
+          level: '一等奖',
+          num: 1
+        },
+        title: '',
+        editCard: false,
+        activeReward:-1,
+        editNum: false,
+     rewardData:[]
     }
   },
   watch: {
@@ -63,10 +96,98 @@ export default {
     
   },
   mounted () {
-
+      if(localStorage.getItem("rewardData")){
+          this.rewardData = JSON.parse(localStorage.getItem("rewardData"))
+      }
+      this.activeReward = this.rewardData.length > 0 ? 0 : -1
   },
   methods:{
-    
+      getBase64Image(img) {
+        var canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+
+        var dataURL = canvas.toDataURL("image/png");
+
+        return dataURL
+    },
+      save(){
+          let bannerImage = document.getElementById('bannerImg');
+          let imgData = ''
+          if(bannerImage){
+              imgData = this.getBase64Image(bannerImage);
+          }
+          if(this.title === '添加奖品'){
+            this.rewardData.push(Object.assign(this.form,{
+                pic:imgData
+            }))
+          }else{
+              this.rewardData[this.activeReward] = Object.assign(this.form,{
+                pic:imgData
+            })
+          }
+            
+            localStorage.setItem("rewardData", JSON.stringify(this.rewardData));
+            this.editCard = false
+           
+      },
+      del(){
+          this.rewardData.splice(this.activeReward,1)
+          localStorage.setItem("rewardData", JSON.stringify(this.rewardData));
+          this.editCard = false
+      },
+      readURL() {
+          let input = document.getElementById('uploadBannerImage')
+          const that = this
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                that.imgUrl =  e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    },
+    getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min)) + min; //不含最大值，含最小值
+    },
+    changeReward(newV){
+        if(newV < 0){
+            return
+        }
+        this.activeReward = newV
+    },
+    randomReward(){
+        let index = this.getRandomInt(0,this.rewardData.length)
+        if(index === this.activeReward){
+            index = index === 0 ? index + 1 : index - 1
+        }
+        this.$refs['carousel'].setActiveItem(index)
+    },
+    changeRewardInfo(){
+        this.title = '修改奖品'
+        this.form = {
+            level: this.rewardData[this.activeReward].level,
+            name: this.rewardData[this.activeReward].name,
+            num: this.rewardData[this.activeReward].num
+        }
+        this.imgUrl = this.rewardData[this.activeReward].pic
+        this.editCard = true
+    },
+    addReward(){
+        this.title = '添加奖品'
+        this.form = {
+            name: '大吉大利',
+            level: '一等奖',
+            num: 1
+        }
+        this.imgUrl = ''
+        this.editCard = true
+    }
   }
 }
 </script>
@@ -80,7 +201,6 @@ export default {
     .reward-list,.reward-taget{
         width: 30%
         height: 520px
-        box-sizing: border-box
         padding: 30px
         box-sizing: border-box
         font-size: 20px
@@ -97,9 +217,10 @@ export default {
             align-items: center
             text-align: center
             .level{
-                font-size: 26px
+                font-size: 30px
                 font-weight: bold
                 margin-bottom: 30px 
+                color:rgba(226,186,48,0.82)
                 
             }
             .name{
@@ -111,18 +232,58 @@ export default {
                 font-size: 16px
             }
         }
-        .tip{
-            margin: 50px auto 0
-            width: 90%
-            height: 62px
-            background-color: rgba(255,255,255,.1)
-            border-radius: 31px
+        .but{
+            user-select none
+            float: left
+            margin-top: 20px
+            width: 45%
+            height: 40px
+            cursor pointer
+            background-color: rgba(226,186,48,.9)
+            border-radius: 20px
             text-align: center
-            line-height 62px
+            line-height 40px
+            box-shadow: 0px 3px 5px #ffffff;
+        }
+        .but:hover{
+            transform: scale(1.1)
+        }
+        .but1{
+            margin-right: 10%
+        }
+        .but3{
+            width:100%
         }
     }
     .reward-taget{
         width: 67%
     }
 }    
+/deep/.el-carousel__arrow{
+    background-color: rgba(226,186,48,0.52)
+}
+/deep/.el-carousel__arrow:hover{
+    background-color: rgba(226,186,48,0.92)
+}
+/deep/ .el-dialog{
+    background-color: rgba(226,186,48,.7)
+    border: 1px solid rgba(226,186,48,1)
+}
+/deep/  .el-dialog__title, /deep/ .el-form-item__label{
+    color:#ffffff
+}
+/deep/ .el-input__inner{
+    background: #684e2566
+    color: #ffffff
+}
+/deep/ .el-input-number__increase, /deep/ .el-input-number__decrease{
+    background: #dd9741
+}
+.hiddle{
+    position: absolute
+    height: 0
+    overflow: hidden
+}
+
 </style>
+

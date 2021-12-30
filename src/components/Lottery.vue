@@ -21,6 +21,12 @@
 <script>
 export default {
   name: 'Lottery',
+  props:{
+    reward:{
+      type:Number,
+      default:-1
+    }
+  },
   data () {
     return {
         winList:[],
@@ -257,7 +263,9 @@ export default {
     }
   },
  watch: {
-
+   reward(newV){
+     console.log(newV)
+   }
   },
   computed: {
 
@@ -313,14 +321,23 @@ export default {
       });
     },
     toggle() {
-      window.TagCanvas.SetSpeed('rootcanvas', [3, 3]);
+      window.TagCanvas.SetSpeed('rootcanvas', [2, 2]);
+      setTimeout(()=>{
+        window.TagCanvas.SetSpeed('rootcanvas', [3, 2]);
+      },1000)
+      setTimeout(()=>{
+        window.TagCanvas.SetSpeed('rootcanvas', [0, 4]);
+      },2000)
+      setTimeout(()=>{
+        window.TagCanvas.SetSpeed('rootcanvas', [5, 0]);
+      },3000)
         let a = this.getRandomInt(0,this.datas.length)
         this.datas[a].win = 1
         console.log(a)
         setTimeout(()=>{
             window.TagCanvas.TagToFront('rootcanvas', { index : a  });
             window.TagCanvas.Reload('rootcanvas');
-        },2000)
+        },4000)
     }
   }
 }
@@ -339,6 +356,7 @@ export default {
     height: 100%
     border-radius: 50%
     background:linear-gradient(180deg,rgba(31,29,44,.8),rgba(6,4,25,.8))
+    box-shadow: 1px 1px 7px 0 #6e6134, 0 0px 9px 0 #e3bf43, -1px 0 9px 0 #e1e0d1, -1px 0 9px 0 #000000
     #tags{
         height: 0  
         overflow: hidden
