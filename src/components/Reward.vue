@@ -23,7 +23,7 @@
         <div class="but but3" @click="randomReward">随机选择</div>
     </div>
     <div class="reward-taget">
-        <Lottery :reward="activeReward"/>
+        <Lottery :reward="activeReward" @openMusic="openMusic" @changeNum="changeNum"/>
     </div>
     <el-dialog
     :title="title"
@@ -43,7 +43,7 @@
             <el-input style="width:200px" v-model="form.name"></el-input>
         </el-form-item>
         <el-form-item label="奖品数量">
-            <el-input-number style="width:200px" v-model="form.num" controls-position="right" :min="1" :max="10"></el-input-number>
+            <el-input-number style="width:200px" v-model="form.num" controls-position="right" :min="0" :max="10"></el-input-number>
         </el-form-item>
         <el-form-item label="奖品图片">
             <input v-if="editCard" type='file' id="uploadBannerImage" @change="readURL" />
@@ -54,9 +54,9 @@
             </div>    
         </el-form-item>
         <el-form-item>
-        <el-button size="mini" @click="editCard = false">取 消</el-button>
-        <el-button v-show="title === '修改奖品'" size="mini" @click="del">删 除</el-button>
-        <el-button size="mini" type="primary" @click="save">确 定</el-button>
+        <el-button size="mini" @click="editCard = false" type="warning" round>取 消</el-button>
+        <el-button v-show="title === '修改奖品'" size="mini" @click="del" type="warning" round>删 除</el-button>
+        <el-button size="mini" @click="save" type="warning" round>{{title !== '修改奖品' ? '添 加' : '确 定'}}</el-button>
         </el-form-item>
         </el-form>
     
@@ -102,6 +102,12 @@ export default {
       this.activeReward = this.rewardData.length > 0 ? 0 : -1
   },
   methods:{
+      changeNum(){
+          this.rewardData = JSON.parse(localStorage.getItem("rewardData"))
+      },
+      openMusic(v){
+          this.$emit('openMusic',v)
+      },
       getBase64Image(img) {
         var canvas = document.createElement("canvas");
         canvas.width = img.width;
@@ -129,7 +135,7 @@ export default {
                 pic:imgData
             })
           }
-            
+            this.activeReward = 0
             localStorage.setItem("rewardData", JSON.stringify(this.rewardData));
             this.editCard = false
            
@@ -138,6 +144,12 @@ export default {
           this.rewardData.splice(this.activeReward,1)
           localStorage.setItem("rewardData", JSON.stringify(this.rewardData));
           this.editCard = false
+          if(this.rewardData.length > 0){
+              this.activeReward = 0
+          }else{
+              this.activeReward = -1
+          }
+          
       },
       readURL() {
           let input = document.getElementById('uploadBannerImage')
@@ -217,7 +229,7 @@ export default {
             align-items: center
             text-align: center
             .level{
-                font-size: 30px
+                font-size: 26px
                 font-weight: bold
                 margin-bottom: 30px 
                 color:rgba(226,186,48,0.82)

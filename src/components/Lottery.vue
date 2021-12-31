@@ -1,26 +1,44 @@
 <template>
   <div id="root">
-    <div id="main" :class="{ mask: false }">
+    <div id="main" :class="mask ? 'mask' : ''">
         <div id="tags">
             <ul v-for="(item,k) in datas" :key="k" :id="item.openid">
                 <li>
-                <a href="javascript:void(0);" :style="{color: item.win > 0 ? 'red' : 'yellow'}">
+                <a href="javascript:void(0);" :style="{color: item.win !=='无' ? '#FF1818' : '#F1C40F'}">
                     <span>{{item.nickname}}</span>
-                    <img :width="item.win > 0 ? 80 : 40" :height="item.win ? 80 : 40" :src="item.headimgurl" />
+                    <img :width="item.win !=='无' ? 80 : 40" :height="item.win !=='无' ? 80 : 40" :src="item.imgurl" />
                 </a>
                 </li>
             </ul>
         </div>
     </div>
     <div class="tool">
-        <el-button @click="toggle">开始</el-button>
+        <el-button v-show="!start1" type="warning" round @click="toggle">开始抽奖</el-button>
+        <el-button v-show="start2" type="warning" round @click="reset">洗牌</el-button>
+        <div v-show="start1" class="countd">
+          <countDown 
+          ref="countDown"
+          :fire="fire"
+          time="10"
+          width= "250"
+          height= "250"
+          :tiping="tiping"
+          :tipend="tipend"
+          @onStatusChange="onStatusChange"
+          @onEnd="onEnd"/>
+        </div>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
+import countDown from 'vue-canvas-countdown'
 export default {
   name: 'Lottery',
+  components: {
+    countDown
+  },
   props:{
     reward:{
       type:Number,
@@ -29,242 +47,25 @@ export default {
   },
   data () {
     return {
+        mask:false,
+        start1: false,
+        start2: false,
         winList:[],
-        datas:[
-          {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as",
-              nickname:"樊克胜11111",
-              sex:0,
-              language:"",
-              city:"",
-              province:"",
-              country:"",
-              win: -1,
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as2",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              province:"",
-              country:"",
-              win: -1,
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as3",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              province:"",
-              win: -1,
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as4",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              win: -1,
-              province:"",
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as5",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              win: -1,
-              province:"",
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as6",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              win: -1,
-              province:"",
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as7",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              province:"",
-              win: -1,
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as8",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              win: -1,
-              province:"",
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as9",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              win: -1,
-              province:"",
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as10",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              win: -1,
-              province:"",
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as11",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              win: -1,
-              province:"",
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as12",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              win: -1,
-              province:"",
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as13",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              win: -1,
-              province:"",
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as14",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              win: -1,
-              province:"",
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as15",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              win: -1,
-              province:"",
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as16",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              win: -1,
-              province:"",
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as17",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              win: -1,
-              province:"",
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as18",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              win: -1,
-              province:"",
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              },
-              {
-              openid:"o--r46qza6siOqOQEkc9IF5jS5as19",
-              nickname:"樊克胜",
-              sex:0,
-              language:"",
-              city:"",
-              win: -1,
-              province:"",
-              country:"",
-              headimgurl:"https://thirdwx.qlogo.cn/mmopen/vi_32/0Fy8TXqU2Oxb7GEblR070Ly7D92zibGiav2yzUQZKzMDRCnoKoEZdvRWNtP2zp6DibiafKKYkzU1eOCibD7cd8icVrJg/132",
-              privilege:[]
-              }
-        ]
+        datas:[],
+        fire: 10,
+        tiping: {
+          text: '正在抽奖',
+          color: 'gold'
+        },
+        tipend: {
+          text: '恭喜',
+          color: 'gold'
+        }
     }
   },
  watch: {
-   reward(newV){
-     console.log(newV)
+   reward(){
+     //console.log(newV)
    }
   },
   computed: {
@@ -274,13 +75,58 @@ export default {
     
   },
    mounted() {
-    this.startTagCanvas();
-    window.addEventListener('resize', this.reportWindowSize);
+     this.getDatas()
+     window.addEventListener('resize', this.reportWindowSize);
+    
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.reportWindowSize);
   },
     methods: {
+      onStatusChange (payload) {
+      console.log('倒计时状态改变：', payload)
+    },
+    onEnd () {
+      console.log('倒计时结束的回调函数')
+    },
+      getDatas(reset){
+        this.mask = true
+        const that = this
+        axios.get('/api/luckyList')
+        .then(function (response) {
+          that.winList = response.data.data
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
+        axios.get('/api/userList')
+        .then(function (response) {
+          response.data.data.forEach((v)=>{
+            v.win = '无'
+          })
+          that.datas = response.data.data
+          console.log(that.datas)
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
+        .then(function () {
+          // always executed
+          if(reset){
+            that.$nextTick(()=>{
+              window.TagCanvas.Reload('rootcanvas')
+              window.TagCanvas.SetSpeed('rootcanvas', [5, 0]);
+            })
+            setTimeout(()=>{
+            window.TagCanvas.SetSpeed('rootcanvas', that.speed());
+            that.start1 = false
+          },2000)
+          }else{
+            that.startTagCanvas();
+          }
+          that.mask = false
+        });  
+      },
        getRandomInt(min, max) {
         min = Math.ceil(min);
         max = Math.floor(max);
@@ -320,24 +166,76 @@ export default {
         noMouse: true
       });
     },
+    saveWiner(openid,type){
+      axios.get('/api/win',{
+        params:{
+          openid: openid,
+          prizeType: type === '一等奖' ? 'prize1' : type === '二等奖' ? 'prize2' : 'prize3'
+        }
+      })
+        .then(function (response) {
+          console.log(response)
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
+    },
     toggle() {
+      let reward = JSON.parse(localStorage.getItem("rewardData"))
+      if(this.reward < 0){
+        return
+      }
+      if(reward[this.reward].num === 0){
+        return
+      }
+      this.start1 = true
+      this.$refs.countDown.startCd()
+      this.$emit('openMusic',true)
       window.TagCanvas.SetSpeed('rootcanvas', [2, 2]);
       setTimeout(()=>{
         window.TagCanvas.SetSpeed('rootcanvas', [3, 2]);
-      },1000)
-      setTimeout(()=>{
-        window.TagCanvas.SetSpeed('rootcanvas', [0, 4]);
       },2000)
       setTimeout(()=>{
+        window.TagCanvas.SetSpeed('rootcanvas', [0, 4]);
+      },4000)
+      setTimeout(()=>{
         window.TagCanvas.SetSpeed('rootcanvas', [5, 0]);
-      },3000)
+      },6000)
+      setTimeout(()=>{
+        window.TagCanvas.SetSpeed('rootcanvas', [2, 6]);
+      },6000)
+      setTimeout(()=>{
+        window.TagCanvas.SetSpeed('rootcanvas', [10, 1]);
+      },8000)
         let a = this.getRandomInt(0,this.datas.length)
-        this.datas[a].win = 1
         console.log(a)
+        this.datas[a].win = reward[this.reward].level
+        this.saveWiner(this.datas[a].openid,reward[this.reward].level)
+        const that = this
         setTimeout(()=>{
-            window.TagCanvas.TagToFront('rootcanvas', { index : a  });
-            window.TagCanvas.Reload('rootcanvas');
-        },4000)
+            window.TagCanvas.TagToFront('rootcanvas', { index : a  })
+            window.TagCanvas.Reload('rootcanvas')
+            that.$emit('openMusic',false)
+            reward[this.reward].num -=1
+            localStorage.setItem("rewardData",JSON.stringify(reward))
+            that.$emit('changeNum')
+            that.start2 = true
+        },10000)
+    },
+    // clearData(){
+    //   const that = this
+    //   this.winList.forEach((v)=>{
+    //     console.log(v)
+    //     let index = that.datas.findIndex((a)=>{return a.openid === v.openid})
+    //     console.log(index)
+    //     if(index > -1){
+    //       that.datas.splice(index,1)
+    //     }
+    //   })
+    // },
+    reset(){
+      this.start2 = false
+      this.getDatas(true)
     }
   }
 }
@@ -361,5 +259,27 @@ export default {
         height: 0  
         overflow: hidden
     }
+}
+.tool{
+  width: calc(100% - 450px)  
+}
+.countd{
+  width: 100%
+  height: 100%
+  display: flex
+  justify-content: center
+  align-items: center
+}
+.mask{
+    animation: spin 2s linear infinite;
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+    transition: all 2s;
+  }
 }
 </style>

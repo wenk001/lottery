@@ -5,10 +5,10 @@
       <h1>磅旗科技年会</h1>
     </div>
     <div class="tools">
-      <Music/>
+      <Music :isOpen="isOpen"/>
     </div>
     <div class="main">
-      <Reward/>
+      <Reward @openMusic="openMusic"/>
     </div>
   </div>
 </template>
@@ -23,6 +23,16 @@ export default {
   components: {
     Music,
     Reward
+  },
+  data () {
+    return {
+      isOpen: false
+    }
+  },
+  methods: {
+    openMusic(v){
+      this.isOpen = v
+    }
   }
 }
 </script>

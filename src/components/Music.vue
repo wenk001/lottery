@@ -8,10 +8,10 @@
     @pause="onPause('audio2')"
     @play="onPlay('audio2')"
     :src="musicUrl2" controls="controls" loop></audio>
-    <audio ref="audio3" 
+    <!-- <audio ref="audio3" 
     @pause="onPause('audio3')"
     @play="onPlay('audio3')"
-    :src="musicUrl3" controls="controls" loop></audio>
+    :src="musicUrl3" controls="controls" loop></audio> -->
 
     <!-- 音频播放控件 -->
     <div class="but" @click="startPlayOrPause" :class="`${open ? 'but_rotate' : 'but'}`">
@@ -24,25 +24,31 @@
 export default {
   name: 'Music',
   props: {
+    isOpen: {
+      type: Boolean,
+      default: false
+    }
   },
   data () {
     return {
       musicUrl1: require('../assets/bg_music.mp3'),
       musicUrl2: require('../assets/lottery_music.mp3'),
-      musicUrl3: require('../assets/end_music.mp3'),
+      // musicUrl3: require('../assets/end_music.mp3'),
       audio: {
         audio1: false,
         audio2: false,
-        audio3: false
+        // audio3: false
       }
     }
   },
   watch: {
-    
+    isOpen: function(){
+        this.startPlayOrPause()
+    }
   },
   computed: {
     open(){
-      return this.audio.audio1 || this.audio.audio2 || this.audio.audio3
+      return this.audio.audio1 || this.audio.audio2
     }
   },
   created () {
@@ -90,6 +96,7 @@ export default {
     display: none
   }
   .but{
+    display: none
     width: 90px
     height: 90px
     border-radius: 50%
