@@ -1,13 +1,13 @@
 <template>
   <div class="home">
-    <div class="head">
-      <img alt="bqkj" src="../assets/logo.png">
+    <div class="head" :style="`zoom:${zoom}`">
+      <!-- <img alt="bqkj" src="../assets/logo.png"> -->
       <h1>磅旗科技年会</h1>
     </div>
     <div class="tools">
       <Music :isOpen="isOpen"/>
     </div>
-    <div class="main">
+    <div class="main" :style="`zoom:${zoom}`">
       <Reward @openMusic="openMusic"/>
     </div>
   </div>
@@ -26,12 +26,21 @@ export default {
   },
   data () {
     return {
-      isOpen: false
+      isOpen: false,
+      zoom: 1,
+      w: 2000
     }
+  },
+  mounted(){
+    this.reportWindowSize()
+    window.addEventListener('resize', this.reportWindowSize);
   },
   methods: {
     openMusic(v){
       this.isOpen = v
+    },
+    reportWindowSize(){
+      this.zoom =  document.body.offsetWidth / this.w
     }
   }
 }
@@ -52,7 +61,8 @@ export default {
     justify-content: center
     align-items: center
     h1{
-      color: yellow
+      color: gold
+      font-size: 6em
     }
   }
   .tools{

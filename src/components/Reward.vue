@@ -23,7 +23,7 @@
         <div class="but but3" @click="randomReward">随机选择</div>
     </div>
     <div class="reward-taget">
-        <Lottery :reward="activeReward" @openMusic="openMusic" @changeNum="changeNum"/>
+        <Lottery :reward="activeReward" :resetData="resetData" @openMusic="openMusic" @changeNum="changeNum"/>
     </div>
     <el-dialog
     :title="title"
@@ -36,7 +36,6 @@
             <el-option label="一等奖" value="一等奖"></el-option>
             <el-option label="二等奖" value="二等奖"></el-option>
             <el-option label="三等奖" value="三等奖"></el-option>
-            <el-option label="特别奖" value="特别奖"></el-option>
             </el-select>
         </el-form-item>
         <el-form-item label="奖品名称">
@@ -79,6 +78,7 @@ export default {
           level: '一等奖',
           num: 1
         },
+        resetData: true,
         title: '',
         editCard: false,
         activeReward:-1,
@@ -137,6 +137,7 @@ export default {
           }
             this.activeReward = 0
             localStorage.setItem("rewardData", JSON.stringify(this.rewardData));
+            this.resetData = !this.resetData
             this.editCard = false
            
       },

@@ -13,44 +13,63 @@
         </div>
     </div>
     <div class="tool">
-        <el-button v-show="!start1" type="warning" round @click="toggle">开始抽奖</el-button>
-        <el-button v-show="start2" type="warning" round @click="reset">洗牌</el-button>
-        <div v-show="start1" class="countd">
+      <transition name="but">
+         <Button v-show="!start1" @toggle="toggle" @winerList="winerList" :title="butTitle"></Button>
+      </transition>
+        <transition name="countd">
+         <div v-show="start1" class="countd">
           <countDown 
           ref="countDown"
           :fire="fire"
           time="10"
-          width= "250"
-          height= "250"
+          width= "280"
+          height= "280"
           :tiping="tiping"
           :tipend="tipend"
           @onStatusChange="onStatusChange"
           @onEnd="onEnd"/>
         </div>
+      </transition>
+        
     </div>
+    <transition name="winer">
+      <Winer v-show="showWiner" @reset="reset" @submit="submit"  @goon="goon" :winList="winList" :isList="isList" :level="level" :url="url" :name="name"></Winer>
+     </transition> 
   </div>
 </template>
 
 <script>
 import axios from 'axios'
 import countDown from 'vue-canvas-countdown'
+import Button from '../components/Button.vue'
+import Winer from '../components/Winer.vue'
 export default {
   name: 'Lottery',
   components: {
-    countDown
+    countDown,Button,Winer
   },
   props:{
     reward:{
       type:Number,
       default:-1
+    },
+    resetData:{
+      type: Boolean,
+      default: true
     }
   },
   data () {
     return {
         mask:false,
         start1: false,
-        start2: false,
+        showWiner: false,
         winList:[],
+        a:-1,
+        level: '',
+        name: '',
+        url: '',
+        isList: false,
+        butTitle: '点击抽奖',
         datas:[],
         fire: 10,
         tiping: {
@@ -58,14 +77,21 @@ export default {
           color: 'gold'
         },
         tipend: {
-          text: '恭喜',
+          text: '恭喜中奖',
           color: 'gold'
         }
     }
   },
  watch: {
-   reward(){
-     //console.log(newV)
+   reward(newV){
+     if(newV >= 0){
+       this.butTitle = JSON.parse(localStorage.getItem("rewardData"))[newV].num > 0 ? '点击抽奖' : '继续抽奖' 
+     }else{
+       this.butTitle = '<<<<添加'
+     }
+   },
+   resetData(){
+     this.butTitle = JSON.parse(localStorage.getItem("rewardData"))[this.reward].num > 0 ? '点击抽奖' : '继续抽奖' 
    }
   },
   computed: {
@@ -75,6 +101,7 @@ export default {
     
   },
    mounted() {
+     this.butTitle = JSON.parse(localStorage.getItem("rewardData")).length > 0 ? '点击抽奖' : '<<<<添加'
      this.getDatas()
      window.addEventListener('resize', this.reportWindowSize);
     
@@ -116,11 +143,11 @@ export default {
             that.$nextTick(()=>{
               window.TagCanvas.Reload('rootcanvas')
               window.TagCanvas.SetSpeed('rootcanvas', [5, 0]);
+              that.start1 = false
             })
             setTimeout(()=>{
             window.TagCanvas.SetSpeed('rootcanvas', that.speed());
-            that.start1 = false
-          },2000)
+          },500)
           }else{
             that.startTagCanvas();
           }
@@ -167,6 +194,7 @@ export default {
       });
     },
     saveWiner(openid,type){
+      const that = this
       axios.get('/api/win',{
         params:{
           openid: openid,
@@ -175,23 +203,29 @@ export default {
       })
         .then(function (response) {
           console.log(response)
+          that.reset()
         })
         .catch(function (error) {
           console.log(error);
         })
+    },
+    winerList(){
+      this.showWiner = true
+      this.isList = true
     },
     toggle() {
       let reward = JSON.parse(localStorage.getItem("rewardData"))
       if(this.reward < 0){
         return
       }
-      if(reward[this.reward].num === 0){
-        return
-      }
       this.start1 = true
+      this.showWiner = false
+      this.isList = false
       this.$refs.countDown.startCd()
       this.$emit('openMusic',true)
-      window.TagCanvas.SetSpeed('rootcanvas', [2, 2]);
+      setTimeout(()=>{
+        window.TagCanvas.SetSpeed('rootcanvas', [2, 2]);
+      },500)
       setTimeout(()=>{
         window.TagCanvas.SetSpeed('rootcanvas', [3, 2]);
       },2000)
@@ -207,35 +241,36 @@ export default {
       setTimeout(()=>{
         window.TagCanvas.SetSpeed('rootcanvas', [10, 1]);
       },8000)
-        let a = this.getRandomInt(0,this.datas.length)
-        console.log(a)
-        this.datas[a].win = reward[this.reward].level
-        this.saveWiner(this.datas[a].openid,reward[this.reward].level)
-        const that = this
-        setTimeout(()=>{
-            window.TagCanvas.TagToFront('rootcanvas', { index : a  })
-            window.TagCanvas.Reload('rootcanvas')
-            that.$emit('openMusic',false)
+      this.a = this.getRandomInt(0,this.datas.length)
+      this.datas[this.a].win = reward[this.reward].level
+      // this.saveWiner(this.datas[a].openid,reward[this.reward].level)
+      const that = this
+      setTimeout(()=>{
+          window.TagCanvas.TagToFront('rootcanvas', { index : that.a  })
+          window.TagCanvas.Reload('rootcanvas')
+          that.$emit('openMusic',false)
+          that.level = reward[this.reward].level
+          that.name = this.datas[this.a].nickname
+          that.url = this.datas[this.a].imgurl
+          that.showWiner = true
+      },9500)
+    },
+    reset(){
+      this.getDatas(true)
+      this.showWiner = false
+    },
+    submit(){
+      let reward = JSON.parse(localStorage.getItem("rewardData"))
+      this.saveWiner(this.datas[this.a].openid,reward[this.reward].level)
+      if(reward[this.reward].num > 0){
             reward[this.reward].num -=1
             localStorage.setItem("rewardData",JSON.stringify(reward))
-            that.$emit('changeNum')
-            that.start2 = true
-        },10000)
+            this.butTitle = JSON.parse(localStorage.getItem("rewardData"))[this.reward].num > 0 ? '点击抽奖' : '继续抽奖' 
+            this.$emit('changeNum')
+          }
     },
-    // clearData(){
-    //   const that = this
-    //   this.winList.forEach((v)=>{
-    //     console.log(v)
-    //     let index = that.datas.findIndex((a)=>{return a.openid === v.openid})
-    //     console.log(index)
-    //     if(index > -1){
-    //       that.datas.splice(index,1)
-    //     }
-    //   })
-    // },
-    reset(){
-      this.start2 = false
-      this.getDatas(true)
+    goon(){
+      this.showWiner = false
     }
   }
 }
@@ -251,6 +286,7 @@ export default {
     display: flex
 }
 #main {
+    width: 450px
     height: 100%
     border-radius: 50%
     background:linear-gradient(180deg,rgba(31,29,44,.8),rgba(6,4,25,.8))
@@ -262,6 +298,7 @@ export default {
 }
 .tool{
   width: calc(100% - 450px)  
+  position: relative
 }
 .countd{
   width: 100%
@@ -281,5 +318,41 @@ export default {
     transform: rotate(360deg);
     transition: all 2s;
   }
+}
+.but-enter-active,  .but-leave-active {
+    transition: all 0.3s linear;
+    transform: translateY(0);
+  }
+.but-enter,  .but-leave {
+    transform: translateY(-50%);
+}
+.but-leave-to{
+     transform: translateY(-50%);
+     opacity: 0;
+  }
+  .countd-enter-active,  .countd-leave-active {
+    transition: all 0.3s linear;
+    transform: translateY(0);
+  }
+.countd-enter,  .countd-leave {
+    transform: translateY(50%);
+}
+.countd-leave-to{
+     transform: translateY(50%);
+     opacity: 0;
+  }
+.winer-leave-active {
+    transition: all 0.2s linear;
+    transform: scale(0,0);
+  }
+.winer-leave{
+    transform: scale(1,1);
+}
+.winer-enter-active {
+    transition: all 0.2s linear;
+    transform: scale(1,1);
+  }
+.winer-enter{
+    transform: scale(0,0);
 }
 </style>
