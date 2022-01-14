@@ -6,7 +6,7 @@
                 <h1 style="font-size: 3em;color: red;font-weight: 400;">恭喜</h1>
                 <el-avatar :size="200" fit="cover" :src="url"></el-avatar>
                 <h2 style="color: red;">{{name}}</h2>
-                <h1 style="color: red;font-weight: 400;">获得<span style="font-style: italic;color:red;font-weight: bold;">{{level}}</span></h1>
+                <h1 style="color: red;font-weight: 400;">获得<span style="font-style: italic;color:red;font-weight: bold;">奖品</span></h1>
                 <div style="width:80%;">
                     <div class="but but1" @click="reset">放弃奖品</div>
                     <div class="but" @click="submit">获得奖品</div>
@@ -16,14 +16,14 @@
         <div v-if="isList">
             <div class="tip1">
                 <h1 style="color: red;">获奖名单</h1>
-                <h2 style="color: red;">一等奖</h2>
+                <!-- <h2 style="color: red;">一等奖</h2> -->
                 <div class="avatar">
                     <div class="avatar-item" v-for="(i,k) in prize1" :key="k + 'x'">
                         <el-avatar :size="50" fit="cover" :src="i.imgurl"></el-avatar>
                         <span style="color: #ffffff;">{{i.nickname}}</span>
                     </div>
                 </div>
-                <h2 style="color: red;">二等奖</h2>
+                <!-- <h2 style="color: red;">二等奖</h2>
                 <div class="avatar">
                     <div class="avatar-item" v-for="(i,k) in prize2" :key="k + 'y'">
                         <el-avatar :size="50" fit="cover" :src="i.imgurl"></el-avatar>
@@ -36,9 +36,12 @@
                         <el-avatar :size="50" fit="cover" :src="i.imgurl"></el-avatar>
                         <span style="color: #ffffff;">{{i.nickname}}</span>
                     </div>
-                </div>
-                <div style="width:100%;margin-top:20px">
+                </div> -->
+                <div style="width:100%;margin-top:50px">
                     <div class="but2" @click="goon">继续抽奖</div>
+                </div>
+                <div style="width:100%;margin-top:50px">
+                    <div class="but2" @click="realReset">重回卡池</div>
                 </div>
             </div>
         </div>
@@ -159,6 +162,7 @@
     </div>
 </template>
 <script>
+import axios from 'axios'
 export default {
     props: {
         url:{
@@ -186,28 +190,28 @@ export default {
     },
     watch: {
         winList:function (newV) {
-            this.prize1 = []
-            this.prize2 = []
-            this.prize3 = []
-            const that = this
-            newV.forEach((v)=>{
-                if(v.prizeType === 'prize1'){
-                    that.prize1.push(v)
-                }
-                if(v.prizeType === 'prize2'){
-                    that.prize2.push(v)
-                }
-                if(v.prizeType === 'prize3'){
-                    that.prize3.push(v)
-                }
-            })
+            this.prize1 = newV
+            // this.prize2 = []
+            // this.prize3 = []
+            // const that = this
+            // newV.forEach((v)=>{
+            //     if(v.prizeType === 'prize1'){
+            //         that.prize1.push(v)
+            //     }
+            //     if(v.prizeType === 'prize2'){
+            //         that.prize2.push(v)
+            //     }
+            //     if(v.prizeType === 'prize3'){
+            //         that.prize3.push(v)
+            //     }
+            // })
         }
     },
     data () {
         return {
             prize1:[],
-            prize2:[],
-            prize3:[]
+            // prize2:[],
+            // prize3:[]
         }
     },
     methods:{
@@ -219,6 +223,17 @@ export default {
         },
         goon(){
             this.$emit('goon')
+        },
+        realReset(){
+            const that = this
+            axios.get('/api/reset')
+            .then(function (response) {
+                console.log(response)
+                that.reset()
+            })
+            .catch(function (error) {
+            console.log(error);
+            })
         }
     }
 }
@@ -266,8 +281,13 @@ export default {
         top 0px
         z-index 99999
         .avatar{
+            width: 100%
+            height: 280px
+            margin-top: 50px
             display: flex
+            flex-wrap: wrap
             justify-content: space-between
+            align-content: space-between
             .avatar-item{
                 display: flex
                 flex-direction: column

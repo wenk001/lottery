@@ -4,12 +4,12 @@
         <el-carousel ref="carousel" height="350px" indicator-position="none" arrow="always" :autoplay="false" @change="changeReward">
             <el-carousel-item v-for="(i,k) in rewardData" :key="k">
                 <div class="reward-card">
-                    <span class="level">{{i.level}}</span>
+                    <span class="level">红包</span>
                     <el-image 
                         style="width: 200px; height: 200px"
-                        :src="i.pic" 
+                        :src="hongbao" 
                         fit="cover"
-                        :preview-src-list="[i.pic]">
+                        :preview-src-list="[hongbao]">
                     </el-image>
                     <span class="name">{{i.name}}</span>
                     <span class="num">奖品剩余数量：
@@ -23,7 +23,7 @@
         <div class="but but3" @click="randomReward">随机选择</div>
     </div>
     <div class="reward-taget">
-        <Lottery :reward="activeReward" :resetData="resetData" @openMusic="openMusic" @changeNum="changeNum"/>
+        <Lottery :reward="activeReward" :resetData="resetData" @openMusic="openMusic" @startEndMusic="startEndMusic" @changeNum="changeNum"/>
     </div>
     <el-dialog
     :title="title"
@@ -32,10 +32,8 @@
     <el-form ref="form" :model="form" label-width="80px">
         
         <el-form-item label="奖品等级">
-            <el-select style="width:200px" v-model="form.level" placeholder="请选择奖品等级">
-            <el-option label="一等奖" value="一等奖"></el-option>
-            <el-option label="二等奖" value="二等奖"></el-option>
-            <el-option label="三等奖" value="三等奖"></el-option>
+            <el-select style="width:200px" v-model="form.level" disabled placeholder="请选择奖品等级">
+            <el-option label="红包" value="一等奖"></el-option>
             </el-select>
         </el-form-item>
         <el-form-item label="奖品名称">
@@ -44,14 +42,14 @@
         <el-form-item label="奖品数量">
             <el-input-number style="width:200px" v-model="form.num" controls-position="right" :min="0" :max="10"></el-input-number>
         </el-form-item>
-        <el-form-item label="奖品图片">
+        <!-- <el-form-item label="奖品图片">
             <input v-if="editCard" type='file' id="uploadBannerImage" @change="readURL" />
             <br>
             <img v-if="imgUrl" style="width:180px;height:180px" :src="imgUrl">
             <div class="hiddle">
                 <img v-if="imgUrl" id="bannerImg" :src="imgUrl">
             </div>    
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item>
         <el-button size="mini" @click="editCard = false" type="warning" round>取 消</el-button>
         <el-button v-show="title === '修改奖品'" size="mini" @click="del" type="warning" round>删 除</el-button>
@@ -72,7 +70,7 @@ export default {
   },
   data () {
     return {
-        imgUrl:'',
+        // imgUrl:'',
         form: {
           name: '大吉大利',
           level: '一等奖',
@@ -83,7 +81,8 @@ export default {
         editCard: false,
         activeReward:-1,
         editNum: false,
-     rewardData:[]
+     rewardData:[],
+     hongbao:require('../assets/红包.jpg')
     }
   },
   watch: {
@@ -96,6 +95,9 @@ export default {
     
   },
   mounted () {
+      if(!JSON.parse(localStorage.getItem("rewardData"))){
+      localStorage.setItem("rewardData",JSON.stringify([]))
+      }
       if(localStorage.getItem("rewardData")){
           this.rewardData = JSON.parse(localStorage.getItem("rewardData"))
       }
@@ -108,32 +110,34 @@ export default {
       openMusic(v){
           this.$emit('openMusic',v)
       },
-      getBase64Image(img) {
-        var canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
+      startEndMusic(v){
+          this.$emit('startEndMusic',v)
+      },
+    //   getBase64Image(img) {
+    //     var canvas = document.createElement("canvas");
+    //     canvas.width = img.width;
+    //     canvas.height = img.height;
 
-        var ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0);
+    //     var ctx = canvas.getContext("2d");
+    //     ctx.drawImage(img, 0, 0);
 
-        var dataURL = canvas.toDataURL("image/png");
+    //     var dataURL = canvas.toDataURL("image/png");
 
-        return dataURL
-    },
+    //     return dataURL
+    // },
       save(){
-          let bannerImage = document.getElementById('bannerImg');
-          let imgData = ''
-          if(bannerImage){
-              imgData = this.getBase64Image(bannerImage);
-          }
+        //   let bannerImage = document.getElementById('bannerImg');
+        //   let imgData = ''
+        //   if(bannerImage){
+        //       imgData = this.getBase64Image(bannerImage);
+        //   }
           if(this.title === '添加奖品'){
-            this.rewardData.push(Object.assign(this.form,{
-                pic:imgData
-            }))
+            // this.rewardData.push(Object.assign(this.form,{
+            //     pic:imgData
+            // }))
+            this.rewardData.push(Object.assign(this.form))
           }else{
-              this.rewardData[this.activeReward] = Object.assign(this.form,{
-                pic:imgData
-            })
+              this.rewardData[this.activeReward] = Object.assign(this.form)
           }
             this.activeReward = 0
             localStorage.setItem("rewardData", JSON.stringify(this.rewardData));
@@ -152,17 +156,17 @@ export default {
           }
           
       },
-      readURL() {
-          let input = document.getElementById('uploadBannerImage')
-          const that = this
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                that.imgUrl =  e.target.result;
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    },
+    //   readURL() {
+    //       let input = document.getElementById('uploadBannerImage')
+    //       const that = this
+    //     if (input.files && input.files[0]) {
+    //         var reader = new FileReader();
+    //         reader.onload = function (e) {
+    //             that.imgUrl =  e.target.result;
+    //         }
+    //         reader.readAsDataURL(input.files[0]);
+    //     }
+    // },
     getRandomInt(min, max) {
         min = Math.ceil(min);
         max = Math.floor(max);
@@ -188,7 +192,7 @@ export default {
             name: this.rewardData[this.activeReward].name,
             num: this.rewardData[this.activeReward].num
         }
-        this.imgUrl = this.rewardData[this.activeReward].pic
+        // this.imgUrl = this.rewardData[this.activeReward].pic
         this.editCard = true
     },
     addReward(){
@@ -198,7 +202,7 @@ export default {
             level: '一等奖',
             num: 1
         }
-        this.imgUrl = ''
+        // this.imgUrl = ''
         this.editCard = true
     }
   }

@@ -87,7 +87,7 @@ export default {
      if(newV >= 0){
        this.butTitle = JSON.parse(localStorage.getItem("rewardData"))[newV].num > 0 ? '点击抽奖' : '继续抽奖' 
      }else{
-       this.butTitle = '<<<<添加'
+       this.butTitle = '<<<添加'
      }
    },
    resetData(){
@@ -101,7 +101,10 @@ export default {
     
   },
    mounted() {
-     this.butTitle = JSON.parse(localStorage.getItem("rewardData")).length > 0 ? '点击抽奖' : '<<<<添加'
+     if(!JSON.parse(localStorage.getItem("rewardData"))){
+       return
+     }
+     this.butTitle = JSON.parse(localStorage.getItem("rewardData")).length > 0 ? '点击抽奖' : '<<<添加'
      this.getDatas()
      window.addEventListener('resize', this.reportWindowSize);
     
@@ -121,7 +124,8 @@ export default {
         const that = this
         axios.get('/api/luckyList')
         .then(function (response) {
-          that.winList = response.data.data
+          that.winList = response.data.data['prize1']
+          console.log(that.winList)
         })
         .catch(function (error) {
           console.log(error);
@@ -249,6 +253,7 @@ export default {
           window.TagCanvas.TagToFront('rootcanvas', { index : that.a  })
           window.TagCanvas.Reload('rootcanvas')
           that.$emit('openMusic',false)
+          that.$emit('startEndMusic',true)
           that.level = reward[this.reward].level
           that.name = this.datas[this.a].nickname
           that.url = this.datas[this.a].imgurl
@@ -257,6 +262,7 @@ export default {
     },
     reset(){
       this.getDatas(true)
+      this.$emit('startEndMusic',false)
       this.showWiner = false
     },
     submit(){

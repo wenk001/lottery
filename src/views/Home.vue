@@ -2,13 +2,13 @@
   <div class="home">
     <div class="head" :style="`zoom:${zoom}`">
       <!-- <img alt="bqkj" src="../assets/logo.png"> -->
-      <h1>磅旗科技年会</h1>
+      <h1>磅旗科技年会抽奖</h1>
     </div>
     <div class="tools">
-      <Music :isOpen="isOpen"/>
+      <Music :isOpen="isOpen" :openEndMusic="openEndMusic"/>
     </div>
     <div class="main" :style="`zoom:${zoom}`">
-      <Reward @openMusic="openMusic"/>
+      <Reward @openMusic="openMusic" @startEndMusic="startEndMusic"/>
     </div>
   </div>
 </template>
@@ -26,6 +26,7 @@ export default {
   },
   data () {
     return {
+      openEndMusic: false,
       isOpen: false,
       zoom: 1,
       w: 2000
@@ -38,6 +39,9 @@ export default {
   methods: {
     openMusic(v){
       this.isOpen = v
+    },
+    startEndMusic(v){
+      this.openEndMusic = v
     },
     reportWindowSize(){
       this.zoom =  document.body.offsetWidth / this.w

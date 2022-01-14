@@ -8,10 +8,7 @@
     @pause="onPause('audio2')"
     @play="onPlay('audio2')"
     :src="musicUrl2" controls="controls" loop></audio>
-    <!-- <audio ref="audio3" 
-    @pause="onPause('audio3')"
-    @play="onPlay('audio3')"
-    :src="musicUrl3" controls="controls" loop></audio> -->
+    <audio ref="audio3" :src="musicUrl3" controls="controls" loop></audio>
 
     <!-- 音频播放控件 -->
     <div class="but" @click="startPlayOrPause" :class="`${open ? 'but_rotate' : 'but'}`">
@@ -24,6 +21,10 @@
 export default {
   name: 'Music',
   props: {
+    openEndMusic: {
+      type: Boolean,
+      default: false
+    },
     isOpen: {
       type: Boolean,
       default: false
@@ -33,7 +34,7 @@ export default {
     return {
       musicUrl1: require('../assets/bg_music.mp3'),
       musicUrl2: require('../assets/lottery_music.mp3'),
-      // musicUrl3: require('../assets/end_music.mp3'),
+      musicUrl3: require('../assets/end_music.mp3'),
       audio: {
         audio1: false,
         audio2: false,
@@ -44,6 +45,14 @@ export default {
   watch: {
     isOpen: function(){
         this.startPlayOrPause()
+    },
+    openEndMusic: function(newV){
+      if(newV){
+        this.play('audio3')
+      }else{
+        this.pause('audio3')
+      }
+      
     }
   },
   computed: {
