@@ -39,14 +39,14 @@
             <el-form-item label="奖品数量">
                 <el-input-number style="width:200px" v-model="form.num" controls-position="right" :min="0" :max="100"></el-input-number>
             </el-form-item>
-            <el-form-item v-if="form.level === 3" label="中奖人数">
+            <el-form-item v-if="form.level === 3 || form.level === 2" label="中奖人数">
                 <el-input-number style="width:200px" v-model="form.num1" controls-position="right" :min="1" :max="5"></el-input-number>
             </el-form-item>
-            <el-form-item>
+            <div style="display: flex;justify-content: center;margin-top: 20px;">
                 <el-button size="mini" @click="save" type="warning" round>{{title !== '修改奖品' ? '添 加' : '确 定'}}</el-button>
                 <el-button size="mini" @click="editCard = false" type="warning" round>取 消</el-button>
-                <el-button size="mini" @click="reset" type="warning" round>重 置</el-button>
-            </el-form-item>
+                <!-- <el-button size="mini" @click="reset" type="warning" round>重 置</el-button> -->
+            </div>
         </el-form>
     
     </el-dialog>
@@ -116,7 +116,7 @@ methods:{
         this.$emit('startEndMusic',v)
     },
     save(){
-        this.form.num1 = this.form.level === 3 ? (this.form.num1 > this.form.num ? this.form.num : this.form.num1) : 1
+        this.form.num1 = (this.form.level === 3 || this.form.level === 2) ? (this.form.num1 > this.form.num ? this.form.num : this.form.num1) : 1
         this.rewardData = [this.form]
         sessionStorage.setItem("rewardData", JSON.stringify(this.rewardData));
         this.resetData = !this.resetData
