@@ -4,10 +4,14 @@
         <div v-if="!isList">
             <div class="tip">
                 <h1 style="font-size: 50px;color: red;font-weight: 400;margin:0 0 20px 0;">恭喜</h1>
-                <el-avatar :size="200" fit="cover" :src="url"></el-avatar>
-                <h2 style="color: red;margin:20px 0;">{{name}}</h2>
+                <div class="tip-div">
+                    <div class="tip-div-avatar" v-for="(i,k) in nameUrlList" :key="k">
+                        <el-avatar :size="90" fit="cover" :src="i.url"></el-avatar>
+                        <h2 style="color: red;margin:20px 0;">{{ i.name }}</h2>
+                    </div>
+                </div>
                 <h1 style="color: red;font-weight: 400;font-size: 60px;margin:0 0 30px 0;">获得<span style="font-style: italic;color:red;font-weight: bold;">奖品</span></h1>
-                <div style="width:80%;">
+                <div style="width:80%;margin-top: 50px;">
                     <div class="but" @click="submit">获得奖品</div>
                 </div>
             </div>
@@ -17,42 +21,42 @@
                 <h2 style="color: red;">特等奖</h2>
                 <div v-if="prize.length > 0" class="avatar">
                     <div class="avatar-item" v-for="(i,k) in prize" :key="k + 'x'">
-                        <el-avatar size="medium" fit="cover" :src="i.imgurl"></el-avatar>
+                        <el-avatar size="large" fit="cover" :src="i.imgurl"></el-avatar>
                         <span style="color: #ffffff;font-size: 10px;">{{i.nickname}}</span>
                     </div>
                 </div>
-                <div v-else>
-                    <span style="color: #ffffff;font-size: 10px;">暂无获奖人员</span>
+                <div v-else style="height: 30px;">
+                    <span style="color: #ffffff;font-size: 10px;"></span>
                 </div>
                 <h2 style="color: red;">一等奖</h2>
                 <div v-if="prize1.length > 0" class="avatar">
                     <div class="avatar-item" v-for="(i,k) in prize1" :key="k + 'x'">
-                        <el-avatar size="medium" fit="cover" :src="i.imgurl"></el-avatar>
+                        <el-avatar size="large" fit="cover" :src="i.imgurl"></el-avatar>
                         <span style="color: #ffffff;font-size: 10px;">{{i.nickname}}</span>
                     </div>
                 </div>
-                <div v-else>
-                    <span style="color: #ffffff;font-size: 10px;">暂无获奖人员</span>
+                <div v-else style="height: 30px;">
+                    <span style="color: #ffffff;font-size: 10px;"></span>
                 </div>
                 <h2 style="color: red;">二等奖</h2>
                 <div v-if="prize2.length > 0" class="avatar">
                     <div class="avatar-item" v-for="(i,k) in prize2" :key="k + 'y'">
-                        <el-avatar size="medium" fit="cover" :src="i.imgurl"></el-avatar>
+                        <el-avatar size="large" fit="cover" :src="i.imgurl"></el-avatar>
                         <span style="color: #ffffff;font-size: 10px;">{{i.nickname}}</span>
                     </div>
                 </div>
-                <div v-else>
-                    <span style="color: #ffffff;font-size: 10px;">暂无获奖人员</span>
+                <div v-else style="height: 30px;">
+                    <span style="color: #ffffff;font-size: 10px;"></span>
                 </div>
                 <h2 style="color: red;">三等奖</h2>
                <div v-if="prize3.length > 0" class="avatar">
                     <div class="avatar-item" v-for="(i,k) in prize3" :key="k + 'z'">
-                        <el-avatar size="medium" fit="cover" :src="i.imgurl"></el-avatar>
+                        <el-avatar size="large" fit="cover" :src="i.imgurl"></el-avatar>
                         <span style="color: #ffffff;font-size: 10px;">{{i.nickname}}</span>
                     </div>
                 </div>
-                <div v-else>
-                    <span style="color: #ffffff;font-size: 10px;">暂无获奖人员</span>
+                <div v-else style="height: 30px;">
+                    <span style="color: #ffffff;font-size: 10px;"></span>
                 </div>
                 <div style="width:100%;position: absolute;left: 0;bottom: 15px;">
                     <div class="but2" @click="goon">关闭</div>
@@ -178,13 +182,11 @@
 <script>
 export default {
     props: {
-        url:{
-            type:String,
-            default: ''
-        },
-        name: {
-            type: String,
-            default: ''
+        nameUrlList: {
+            type: Array,
+            default: function(){
+                return []
+            }
         },
         isList:{
             type: Boolean,
@@ -240,9 +242,9 @@ export default {
     left: -100px
     z-index: 10000
     .fff{
-        position: fixed
-        top: 0px
-        left: 0px
+        position: absolute
+        top:-147px;
+        left: -365px;
         width: 100vw
         height: 100vh
         z-index: 999
@@ -260,6 +262,24 @@ export default {
         justify-content: center
         align-items: center
         flex-direction: column
+        .tip-div{
+            display flex
+            .tip-div-avatar{
+                display: flex
+                justify-content: center
+                align-items: center
+                flex-direction: column
+                box-sizing border-box
+                padding 0 10px
+                h2{
+                    text-align center
+                    overflow: hidden;//隐藏文字
+                    text-overflow: ellipsis;//显示...
+                    white-space: nowrap; //不换行
+                    max-width:100px;//超过100px就截取
+                }
+            }
+        }
     }
     .tip1{
         width: 100%
@@ -285,6 +305,15 @@ export default {
                 justify-content: center
                 box-sizing: border-box
                 padding 0 10px
+                span{
+                    display inline-block
+                    text-align center
+                    overflow: hidden;//隐藏文字
+                    text-overflow: ellipsis;//显示...
+                    white-space: nowrap; //不换行
+                    max-width:60px;//超过100px就截取
+
+                }
             }
         }
     }

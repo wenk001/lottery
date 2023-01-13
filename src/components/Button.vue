@@ -9,7 +9,7 @@ export default {
     props:{
         title:{
             type: String,
-            default: '点击抽奖'
+            default: '启动抽奖'
         }
     },
     data () {
@@ -19,7 +19,7 @@ export default {
     },
     methods: {
         start(){
-            if(this.title !== "点击抽奖"){
+            if(this.title !== "启动抽奖"){
                 return
             }
             this.$emit('toggle')

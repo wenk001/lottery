@@ -18,7 +18,7 @@
       </transition>
         <transition name="countd">
          <div v-show="start1" class="countd">
-          <countDown 
+          <!-- <countDown 
           ref="countDown"
           :fire="fire"
           time="10"
@@ -27,26 +27,27 @@
           :tiping="tiping"
           :tipend="tipend"
           @onStatusChange="onStatusChange"
-          @onEnd="onEnd"/>
+          @onEnd="onEnd"/> -->
+          <a href="javascript:void(0)" @click="stop" class="butbut">停止抽奖</a>
         </div>
       </transition>
         
     </div>
     <transition name="winer">
-      <Winer v-show="showWiner" @submit="submit"  @goon="goon" :winList="winList" :isList="isList" :url="url" :name="name"></Winer>
-     </transition> 
+      <Winer v-show="showWiner" @submit="submit"  @goon="goon" :winList="winList" :isList="isList" :nameUrlList="nameUrlList"></Winer>
+    </transition> 
   </div>
 </template>
 
 <script>
 import axios from 'axios'
-import countDown from 'vue-canvas-countdown'
+// import countDown from 'vue-canvas-countdown'
 import Button from '../components/Button.vue'
 import Winer from '../components/Winer.vue'
 export default {
   name: 'Lottery',
   components: {
-    countDown,Button,Winer
+    Button,Winer
   },
   props:{
     resetData:{
@@ -61,11 +62,11 @@ export default {
         showWiner: false,
         winList: {},
         allList: [],
-        a:-1,
-        name: '',
-        url: '',
+        aaa:-1,
+        timer: null,
+        nameUrlList: [],
         isList: false,
-        butTitle: '点击抽奖',
+        butTitle: '启动抽奖',
         datas:[],
         fire: 10,
         tiping: {
@@ -82,7 +83,8 @@ export default {
    resetData:{
     immediate:true,
      handler(){
-      this.butTitle = JSON.parse(sessionStorage.getItem("rewardData"))[0].num > 0 ? '点击抽奖' : '已无奖品' 
+      this.butTitle = JSON.parse(sessionStorage.getItem("rewardData"))[0].num > 0 ? '启动抽奖' : '已无奖品' 
+      this.getAllData()
     }
    }
   },
@@ -102,12 +104,12 @@ export default {
   },
     methods: {
       //倒计时组件
-      onStatusChange (payload) {
-        console.log('倒计时状态改变：', payload)
-      },
-      onEnd () {
-        console.log('倒计时结束的回调函数')
-      },
+      // onStatusChange (payload) {
+      //   console.log('倒计时状态改变：', payload)
+      // },
+      // onEnd () {
+      //   console.log('倒计时结束的回调函数')
+      // },
       //获取所有名单
       async getAllData(reset){
         this.mask = true
@@ -165,54 +167,82 @@ export default {
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min)) + min; //不含最大值，含最小值
       },
+      getSomeBody(num,min,max){
+        let par = []
+        while (par.length < num) {
+          par.push(this.getRandomInt(min,max))
+          par = Array.from(new Set(par))
+        }
+        return par
+      },
     async winerList(){
       await this.getLuckyList()
       this.showWiner = true
       this.isList = true
     },
     async toggle() {
-      
       let reward = JSON.parse(sessionStorage.getItem("rewardData"))
+      this.$emit('openMusic',true)
       this.start1 = true
       this.showWiner = false
       this.isList = false
-      this.$refs.countDown.startCd()
-      this.$emit('openMusic',true)
-      setTimeout(()=>{
-        window.TagCanvas.SetSpeed('rootcanvas', [2, 2]);
-      },500)
-      setTimeout(()=>{
-        window.TagCanvas.SetSpeed('rootcanvas', [3, 2]);
-      },2000)
-      setTimeout(()=>{
-        window.TagCanvas.SetSpeed('rootcanvas', [0, 4]);
-      },4000)
-      setTimeout(()=>{
-        window.TagCanvas.SetSpeed('rootcanvas', [5, 0]);
-      },6000)
-      setTimeout(()=>{
-        window.TagCanvas.SetSpeed('rootcanvas', [2, 6]);
-      },6000)
-      setTimeout(()=>{
-        window.TagCanvas.SetSpeed('rootcanvas', [10, 1]);
-      },8000)
+      // this.$refs.countDown.startCd()
       const that = this
-      setTimeout(()=>{
-          window.TagCanvas.TagToFront('rootcanvas', { index : ind  })
-          window.TagCanvas.Reload('rootcanvas')
-          that.$emit('openMusic',false)
-          that.$emit('startEndMusic',true)
-          that.name = this.datas[this.a].nickname
-          that.url = this.datas[this.a].imgurl
-          that.showWiner = true
-      },9500)
+      window.TagCanvas.SetSpeed('rootcanvas', [2, 2]);
+      this.timer = setInterval(()=>{
+        window.TagCanvas.SetSpeed('rootcanvas', [that.getRandomInt(2,11), that.getRandomInt(0,7)]);
+      },1000)
+      // setTimeout(()=>{
+      //   window.TagCanvas.SetSpeed('rootcanvas', [2, 2]);
+      // },500)
+      // setTimeout(()=>{
+      //   window.TagCanvas.SetSpeed('rootcanvas', [3, 2]);
+      // },2000)
+      // setTimeout(()=>{
+      //   window.TagCanvas.SetSpeed('rootcanvas', [0, 4]);
+      // },4000)
+      // setTimeout(()=>{
+      //   window.TagCanvas.SetSpeed('rootcanvas', [5, 0]);
+      // },6000)
+      // setTimeout(()=>{
+      //   window.TagCanvas.SetSpeed('rootcanvas', [2, 6]);
+      // },6000)
+      // setTimeout(()=>{
+      //   window.TagCanvas.SetSpeed('rootcanvas', [10, 1]);
+      // },8000)
+      // const that = this
+      // setTimeout(()=>{
+      //     window.TagCanvas.TagToFront('rootcanvas', { index : 0  })
+      //     window.TagCanvas.Reload('rootcanvas')
+      //     that.$emit('openMusic',false)
+      //     that.$emit('startEndMusic',true)
+      //     let par = []
+      //     for(let i = 0; i < that.aaa.length; i++){
+      //       par.push({name: that.datas[that.aaa[i]].nickname,url: that.datas[that.aaa[i]].imgurl})
+      //     }
+      //     that.nameUrlList = par
+      //     that.showWiner = true
+      // },9500)
       await this.getUserList()
-      this.a = this.getRandomInt(0,this.datas.length)
-      console.log(this.a)
-      let ind = this.allList.findIndex((v) => {
-        return v.openid === this.datas[this.a].openid
-      })
-      this.allList[ind].win = ['特等奖','一等奖','二等奖','三等奖'][reward[0].level]
+      this.aaa = this.getSomeBody(reward[0].num1, 0, this.datas.length)
+      console.log(this.aaa)
+    },
+    stop(){
+      if(this.timer){
+        clearInterval(this.timer)
+        this.timer = null
+      }
+      const that = this
+      window.TagCanvas.TagToFront('rootcanvas', { index : 0  })
+      window.TagCanvas.Reload('rootcanvas')
+      that.$emit('openMusic', false)
+      that.$emit('startEndMusic', true)
+      let par = []
+      for(let i = 0; i < that.aaa.length; i++){
+        par.push({name: that.datas[that.aaa[i]].nickname,url: that.datas[that.aaa[i]].imgurl})
+      }
+      that.nameUrlList = par
+      that.showWiner = true
     },
     reset(){
       this.getAllData(true)
@@ -221,11 +251,18 @@ export default {
     },
     submit(){
       let reward = JSON.parse(sessionStorage.getItem("rewardData"))
-      this.saveWiner(this.datas[this.a].openid,reward[0].level)
+      let par = []
+      for(let i = 0; i < this.aaa.length; i++){
+        par.push(this.datas[this.aaa[i]].openid)
+      }
+      this.saveWiner(par.join(','), reward[0].level)
       if(reward[0].num > 0){
-        reward[0].num = reward[0].num - 1
+        reward[0].num = reward[0].num - reward[0].num1
+        if(reward[0].num  < reward[0].num1){
+          reward[0].num1 = reward[0].num
+        }
         sessionStorage.setItem("rewardData",JSON.stringify(reward))
-        this.butTitle = JSON.parse(sessionStorage.getItem("rewardData"))[0].num > 0 ? '点击抽奖' : '已无奖品' 
+        this.butTitle = JSON.parse(sessionStorage.getItem("rewardData"))[0].num > 0 ? '启动抽奖' : '已无奖品' 
         this.$emit('changeNum')
       }
     },
@@ -364,5 +401,34 @@ export default {
   }
 .winer-enter{
     transform: scale(0,0);
+}
+.butbut{
+    user-select none
+    position: relative;
+    color: rgba(255,255,255,1);
+    text-decoration: none;
+    background-color: #E6A23C;
+    font-family: 'Yanone Kaffeesatz';
+    font-weight: 700;
+    font-size: 3em;
+    display: block;
+    padding: 4px;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    box-shadow: 0px 9px 0px #c37503, 0px 9px 25px rgb(243 200 77 / 70%);
+    margin: 100px auto;
+    width: 160px;
+    text-align: center;
+    -webkit-transition: all .1s ease;
+    -moz-transition: all .1s ease;
+    -ms-transition: all .1s ease;
+    -o-transition: all .1s ease;
+    transition: all .1s ease;
+}
+.butbut:active {
+  box-shadow: 0px 3px 0px #c37503, 0px 3px 6px rgba(0,0,0,.9);
+  position: relative;
+  top: 6px;
 }
 </style>

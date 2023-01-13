@@ -39,10 +39,13 @@
             <el-form-item label="奖品数量">
                 <el-input-number style="width:200px" v-model="form.num" controls-position="right" :min="0" :max="100"></el-input-number>
             </el-form-item>
+            <el-form-item v-if="form.level === 3" label="中奖人数">
+                <el-input-number style="width:200px" v-model="form.num1" controls-position="right" :min="1" :max="5"></el-input-number>
+            </el-form-item>
             <el-form-item>
-                <el-button size="mini" @click="editCard = false" type="warning" round>取 消</el-button>
-                <!-- <el-button v-show="title === '修改奖品'" size="mini" @click="del" type="warning" round>删 除</el-button> -->
                 <el-button size="mini" @click="save" type="warning" round>{{title !== '修改奖品' ? '添 加' : '确 定'}}</el-button>
+                <el-button size="mini" @click="editCard = false" type="warning" round>取 消</el-button>
+                <el-button size="mini" @click="reset" type="warning" round>重 置</el-button>
             </el-form-item>
         </el-form>
     
@@ -51,6 +54,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import Lottery from '../components/Lottery'
 export default {
 name: 'Reward',
@@ -61,7 +65,8 @@ data () {
     return {
         form: {
             level: 3,
-            num: 0
+            num: 0,
+            num1: 1
         },
         resetData: true,
         title: '',
@@ -78,21 +83,31 @@ computed: {
 
 },
 created () {
-    
-},
-mounted () {
     if(sessionStorage.getItem("rewardData") == null){
         console.log('1')
-        this.rewardData=[{level: 3, num: 0}]
+        this.rewardData=[{level: 3, num: 10, num1: 5}]
         sessionStorage.setItem("rewardData",JSON.stringify(this.rewardData))
     }else{
         console.log('2')
         this.rewardData= JSON.parse(sessionStorage.getItem("rewardData"))
     }
 },
+mounted () {
+},
 methods:{
+    async reset(){
+        await axios.get('/api/reset')
+        this.form = {level: 3, num: 10, num1: 5}
+        this.rewardData = [{level: 3, num: 10, num1: 5}]
+        sessionStorage.setItem("rewardData",JSON.stringify(this.rewardData))
+        this.editCard = false
+        this.resetData = !this.resetData
+    },
     changeNum(){
-        this.rewardData[0].num = this.rewardData[0].num - 1
+        this.rewardData[0].num = this.rewardData[0].num - this.rewardData[0].num1
+        if(this.rewardData[0].num < this.rewardData[0].num1){
+            this.rewardData[0].num1 = this.rewardData[0].num
+        }
     },
     openMusic(v){
         this.$emit('openMusic',v)
@@ -101,6 +116,7 @@ methods:{
         this.$emit('startEndMusic',v)
     },
     save(){
+        this.form.num1 = this.form.level === 3 ? (this.form.num1 > this.form.num ? this.form.num : this.form.num1) : 1
         this.rewardData = [this.form]
         sessionStorage.setItem("rewardData", JSON.stringify(this.rewardData));
         this.resetData = !this.resetData
@@ -110,7 +126,8 @@ methods:{
         this.title = '修改奖品'
         this.form = {
             level: this.rewardData[0].level,
-            num: this.rewardData[0].num
+            num: this.rewardData[0].num,
+            num1: this.rewardData[0].num1
         }
         this.editCard = true
     },
