@@ -44,7 +44,7 @@ export default {
       this.openEndMusic = v
     },
     reportWindowSize(){
-      this.zoom =  document.body.offsetWidth / this.w
+      this.zoom =  document.body.offsetWidth / this.w + 0.1
     }
   }
 }

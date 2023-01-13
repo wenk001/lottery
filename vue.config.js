@@ -4,12 +4,12 @@ module.exports = {
   lintOnSave: false,
   devServer: {
     // host: 'localhost',
-    host: '192.168.0.89',
+    // host: '192.168.0.89',
     port: 8080,
     proxy: {  // 设置代理
       '/api': {
+        target: 'http://192.168.1.26:8888',
         // target: 'http://localhost:8888',
-        target: 'http://192.168.0.83:8888',
         changeOrigin: true,
         pathRewrite: {
           '^/api': ''

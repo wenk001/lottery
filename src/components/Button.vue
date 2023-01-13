@@ -19,6 +19,9 @@ export default {
     },
     methods: {
         start(){
+            if(this.title === "已无奖品"){
+                return
+            }
             this.$emit('toggle')
         },
         winerList(){

@@ -2,7 +2,7 @@
   <div id="root">
     <div id="main" :class="mask ? 'mask' : ''">
         <div id="tags">
-            <ul v-for="(item,k) in datas" :key="k" :id="item.openid">
+            <ul v-for="(item,k) in allList" :key="k" :id="item.openid">
                 <li>
                 <a href="javascript:void(0);" :style="{color: item.win !=='无' ? '#FF1818' : '#F1C40F'}">
                     <span>{{item.nickname}}</span>
@@ -33,7 +33,7 @@
         
     </div>
     <transition name="winer">
-      <Winer v-show="showWiner" @reset="reset" @submit="submit"  @goon="goon" :winList="winList" :isList="isList" :level="level" :url="url" :name="name"></Winer>
+      <Winer v-show="showWiner" @submit="submit"  @goon="goon" :winList="winList" :isList="isList" :url="url" :name="name"></Winer>
      </transition> 
   </div>
 </template>
@@ -49,10 +49,6 @@ export default {
     countDown,Button,Winer
   },
   props:{
-    reward:{
-      type:Number,
-      default:-1
-    },
     resetData:{
       type: Boolean,
       default: true
@@ -63,9 +59,9 @@ export default {
         mask:false,
         start1: false,
         showWiner: false,
-        winList:[],
+        winList: {},
+        allList: [],
         a:-1,
-        level: '',
         name: '',
         url: '',
         isList: false,
@@ -83,15 +79,11 @@ export default {
     }
   },
  watch: {
-   reward(newV){
-     if(newV >= 0){
-       this.butTitle = JSON.parse(localStorage.getItem("rewardData"))[newV].num > 0 ? '点击抽奖' : '继续抽奖' 
-     }else{
-       this.butTitle = '<<<添加'
-     }
-   },
-   resetData(){
-     this.butTitle = JSON.parse(localStorage.getItem("rewardData"))[this.reward].num > 0 ? '点击抽奖' : '继续抽奖' 
+   resetData:{
+    immediate:true,
+     handler(){
+      this.butTitle = JSON.parse(sessionStorage.getItem("rewardData"))[0].num > 0 ? '点击抽奖' : '已无奖品' 
+    }
    }
   },
   computed: {
@@ -101,11 +93,7 @@ export default {
     
   },
    mounted() {
-     if(!JSON.parse(localStorage.getItem("rewardData"))){
-       return
-     }
-     this.butTitle = JSON.parse(localStorage.getItem("rewardData")).length > 0 ? '点击抽奖' : '<<<添加'
-     this.getDatas()
+     this.getAllData()
      window.addEventListener('resize', this.reportWindowSize);
     
   },
@@ -113,30 +101,25 @@ export default {
     window.removeEventListener('resize', this.reportWindowSize);
   },
     methods: {
+      //倒计时组件
       onStatusChange (payload) {
-      console.log('倒计时状态改变：', payload)
-    },
-    onEnd () {
-      console.log('倒计时结束的回调函数')
-    },
-      getDatas(reset){
+        console.log('倒计时状态改变：', payload)
+      },
+      onEnd () {
+        console.log('倒计时结束的回调函数')
+      },
+      //获取所有名单
+      getAllData(reset){
         this.mask = true
         const that = this
-        axios.get('/api/luckyList')
-        .then(function (response) {
-          that.winList = response.data.data['prize1']
-          console.log(that.winList)
-        })
-        .catch(function (error) {
-          console.log(error);
-        })
-        axios.get('/api/userList')
+        axios.get('/api/allList')
         .then(function (response) {
           response.data.data.forEach((v)=>{
             v.win = '无'
           })
-          that.datas = response.data.data
-          console.log(that.datas)
+          console.log(response.data.data)
+          that.allList = response.data.data
+          
         })
         .catch(function (error) {
           console.log(error);
@@ -150,19 +133,116 @@ export default {
               that.start1 = false
             })
             setTimeout(()=>{
-            window.TagCanvas.SetSpeed('rootcanvas', that.speed());
-          },500)
+              window.TagCanvas.SetSpeed('rootcanvas', that.speed());
+            },500)
           }else{
             that.startTagCanvas();
           }
           that.mask = false
         });  
       },
-       getRandomInt(min, max) {
+      // 获取获奖名单
+      async getLuckyList(){
+        const that = this
+        let {data} = await axios.get('/api/luckyList')
+        that.winList = data.data
+        console.log(that.winList)
+      },
+      // 获取可抽奖名单
+      async getUserList(){
+        const that = this
+        let {data} = await axios.get('/api/userList')
+        that.datas = data.data
+          console.log(that.datas)
+      },
+      getRandomInt(min, max) {
         min = Math.ceil(min);
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min)) + min; //不含最大值，含最小值
-        },
+      },
+    async winerList(){
+      await this.getLuckyList()
+      this.showWiner = true
+      this.isList = true
+    },
+    async toggle() {
+      let reward = JSON.parse(sessionStorage.getItem("rewardData"))
+      this.start1 = true
+      this.showWiner = false
+      this.isList = false
+      this.$refs.countDown.startCd()
+      this.$emit('openMusic',true)
+      setTimeout(()=>{
+        window.TagCanvas.SetSpeed('rootcanvas', [2, 2]);
+      },500)
+      setTimeout(()=>{
+        window.TagCanvas.SetSpeed('rootcanvas', [3, 2]);
+      },2000)
+      setTimeout(()=>{
+        window.TagCanvas.SetSpeed('rootcanvas', [0, 4]);
+      },4000)
+      setTimeout(()=>{
+        window.TagCanvas.SetSpeed('rootcanvas', [5, 0]);
+      },6000)
+      setTimeout(()=>{
+        window.TagCanvas.SetSpeed('rootcanvas', [2, 6]);
+      },6000)
+      setTimeout(()=>{
+        window.TagCanvas.SetSpeed('rootcanvas', [10, 1]);
+      },8000)
+      const that = this
+      setTimeout(()=>{
+          window.TagCanvas.TagToFront('rootcanvas', { index : ind  })
+          window.TagCanvas.Reload('rootcanvas')
+          that.$emit('openMusic',false)
+          that.$emit('startEndMusic',true)
+          that.name = this.datas[this.a].nickname
+          that.url = this.datas[this.a].imgurl
+          that.showWiner = true
+      },9500)
+      await this.getUserList()
+      console.log(this.datas)
+      this.a = this.getRandomInt(0,this.datas.length)
+      console.log(this.a)
+      let ind = this.allList.findIndex((v) => {
+        return v.openid === this.datas[this.a].openid
+      })
+      this.allList[ind].win = ['特等奖','一等奖','二等奖','三等奖'][reward[0].level]
+    },
+    reset(){
+      this.getAllData(true)
+      this.$emit('startEndMusic',false)
+      this.showWiner = false
+    },
+    submit(){
+      let reward = JSON.parse(sessionStorage.getItem("rewardData"))
+      this.saveWiner(this.datas[this.a].openid,reward[0].level)
+      if(reward[0].num > 0){
+        reward[0].num = reward[0].num - 1
+        sessionStorage.setItem("rewardData",JSON.stringify(reward))
+        this.butTitle = JSON.parse(sessionStorage.getItem("rewardData"))[0].num > 0 ? '点击抽奖' : '已无奖品' 
+        this.$emit('changeNum')
+      }
+    },
+    saveWiner(openid,type){
+      const that = this
+      axios.get('/api/win',{
+        params:{
+          openid: openid,
+          prizeType: ['prize','prize1','prize2','prize3'][type]
+        }
+      })
+        .then(function (response) {
+          console.log(response)
+          that.reset()
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
+    },
+    goon(){
+      this.showWiner = false
+    },
     reportWindowSize() {
       const AppCanvas = this.$el.querySelector('#rootcanvas');
       if (AppCanvas.parentElement) {
@@ -196,87 +276,6 @@ export default {
         lock: 'xy',
         noMouse: true
       });
-    },
-    saveWiner(openid,type){
-      const that = this
-      axios.get('/api/win',{
-        params:{
-          openid: openid,
-          prizeType: type === '一等奖' ? 'prize1' : type === '二等奖' ? 'prize2' : 'prize3'
-        }
-      })
-        .then(function (response) {
-          console.log(response)
-          that.reset()
-        })
-        .catch(function (error) {
-          console.log(error);
-        })
-    },
-    winerList(){
-      this.showWiner = true
-      this.isList = true
-    },
-    toggle() {
-      let reward = JSON.parse(localStorage.getItem("rewardData"))
-      if(this.reward < 0){
-        return
-      }
-      this.start1 = true
-      this.showWiner = false
-      this.isList = false
-      this.$refs.countDown.startCd()
-      this.$emit('openMusic',true)
-      setTimeout(()=>{
-        window.TagCanvas.SetSpeed('rootcanvas', [2, 2]);
-      },500)
-      setTimeout(()=>{
-        window.TagCanvas.SetSpeed('rootcanvas', [3, 2]);
-      },2000)
-      setTimeout(()=>{
-        window.TagCanvas.SetSpeed('rootcanvas', [0, 4]);
-      },4000)
-      setTimeout(()=>{
-        window.TagCanvas.SetSpeed('rootcanvas', [5, 0]);
-      },6000)
-      setTimeout(()=>{
-        window.TagCanvas.SetSpeed('rootcanvas', [2, 6]);
-      },6000)
-      setTimeout(()=>{
-        window.TagCanvas.SetSpeed('rootcanvas', [10, 1]);
-      },8000)
-      this.a = this.getRandomInt(0,this.datas.length)
-      this.datas[this.a].win = reward[this.reward].level
-      // this.saveWiner(this.datas[a].openid,reward[this.reward].level)
-      const that = this
-      setTimeout(()=>{
-          window.TagCanvas.TagToFront('rootcanvas', { index : that.a  })
-          window.TagCanvas.Reload('rootcanvas')
-          that.$emit('openMusic',false)
-          that.$emit('startEndMusic',true)
-          that.level = reward[this.reward].level
-          that.name = this.datas[this.a].nickname
-          that.url = this.datas[this.a].imgurl
-          that.showWiner = true
-      },9500)
-    },
-    reset(){
-      this.getDatas(true)
-      this.$emit('startEndMusic',false)
-      this.showWiner = false
-    },
-    submit(){
-      let reward = JSON.parse(localStorage.getItem("rewardData"))
-      this.saveWiner(this.datas[this.a].openid,reward[this.reward].level)
-      if(reward[this.reward].num > 0){
-            reward[this.reward].num -=1
-            localStorage.setItem("rewardData",JSON.stringify(reward))
-            this.butTitle = JSON.parse(localStorage.getItem("rewardData"))[this.reward].num > 0 ? '点击抽奖' : '继续抽奖' 
-            this.$emit('changeNum')
-          }
-    },
-    goon(){
-      this.showWiner = false
     }
   }
 }

@@ -3,45 +3,59 @@
         <div class="fff"></div>
         <div v-if="!isList">
             <div class="tip">
-                <h1 style="font-size: 3em;color: red;font-weight: 400;">恭喜</h1>
+                <h1 style="font-size: 50px;color: red;font-weight: 400;margin:0 0 20px 0;">恭喜</h1>
                 <el-avatar :size="200" fit="cover" :src="url"></el-avatar>
-                <h2 style="color: red;">{{name}}</h2>
-                <h1 style="color: red;font-weight: 400;">获得<span style="font-style: italic;color:red;font-weight: bold;">奖品</span></h1>
+                <h2 style="color: red;margin:20px 0;">{{name}}</h2>
+                <h1 style="color: red;font-weight: 400;font-size: 60px;margin:0 0 30px 0;">获得<span style="font-style: italic;color:red;font-weight: bold;">奖品</span></h1>
                 <div style="width:80%;">
-                    <div class="but but1" @click="reset">放弃奖品</div>
                     <div class="but" @click="submit">获得奖品</div>
                 </div>
             </div>
         </div>
         <div v-if="isList">
             <div class="tip1">
-                <h1 style="color: red;">获奖名单</h1>
-                <!-- <h2 style="color: red;">一等奖</h2> -->
-                <div class="avatar">
-                    <div class="avatar-item" v-for="(i,k) in prize1" :key="k + 'x'">
-                        <el-avatar :size="50" fit="cover" :src="i.imgurl"></el-avatar>
-                        <span style="color: #ffffff;">{{i.nickname}}</span>
+                <h2 style="color: red;">特等奖</h2>
+                <div v-if="prize.length > 0" class="avatar">
+                    <div class="avatar-item" v-for="(i,k) in prize" :key="k + 'x'">
+                        <el-avatar size="medium" fit="cover" :src="i.imgurl"></el-avatar>
+                        <span style="color: #ffffff;font-size: 10px;">{{i.nickname}}</span>
                     </div>
                 </div>
-                <!-- <h2 style="color: red;">二等奖</h2>
-                <div class="avatar">
-                    <div class="avatar-item" v-for="(i,k) in prize2" :key="k + 'y'">
-                        <el-avatar :size="50" fit="cover" :src="i.imgurl"></el-avatar>
-                        <span style="color: #ffffff;">{{i.nickname}}</span>
+                <div v-else>
+                    <span style="color: #ffffff;font-size: 10px;">暂无获奖人员</span>
+                </div>
+                <h2 style="color: red;">一等奖</h2>
+                <div v-if="prize1.length > 0" class="avatar">
+                    <div class="avatar-item" v-for="(i,k) in prize1" :key="k + 'x'">
+                        <el-avatar size="medium" fit="cover" :src="i.imgurl"></el-avatar>
+                        <span style="color: #ffffff;font-size: 10px;">{{i.nickname}}</span>
                     </div>
+                </div>
+                <div v-else>
+                    <span style="color: #ffffff;font-size: 10px;">暂无获奖人员</span>
+                </div>
+                <h2 style="color: red;">二等奖</h2>
+                <div v-if="prize2.length > 0" class="avatar">
+                    <div class="avatar-item" v-for="(i,k) in prize2" :key="k + 'y'">
+                        <el-avatar size="medium" fit="cover" :src="i.imgurl"></el-avatar>
+                        <span style="color: #ffffff;font-size: 10px;">{{i.nickname}}</span>
+                    </div>
+                </div>
+                <div v-else>
+                    <span style="color: #ffffff;font-size: 10px;">暂无获奖人员</span>
                 </div>
                 <h2 style="color: red;">三等奖</h2>
-               <div class="avatar">
+               <div v-if="prize3.length > 0" class="avatar">
                     <div class="avatar-item" v-for="(i,k) in prize3" :key="k + 'z'">
-                        <el-avatar :size="50" fit="cover" :src="i.imgurl"></el-avatar>
-                        <span style="color: #ffffff;">{{i.nickname}}</span>
+                        <el-avatar size="medium" fit="cover" :src="i.imgurl"></el-avatar>
+                        <span style="color: #ffffff;font-size: 10px;">{{i.nickname}}</span>
                     </div>
-                </div> -->
-                <div style="width:100%;margin-top:50px">
-                    <div class="but2" @click="goon">继续抽奖</div>
                 </div>
-                <div style="width:100%;margin-top:50px">
-                    <div class="but2" @click="realReset">重回卡池</div>
+                <div v-else>
+                    <span style="color: #ffffff;font-size: 10px;">暂无获奖人员</span>
+                </div>
+                <div style="width:100%;position: absolute;left: 0;bottom: 15px;">
+                    <div class="but2" @click="goon">关闭</div>
                 </div>
             </div>
         </div>
@@ -162,7 +176,6 @@
     </div>
 </template>
 <script>
-import axios from 'axios'
 export default {
     props: {
         url:{
@@ -173,68 +186,44 @@ export default {
             type: String,
             default: ''
         },
-        level:{
-            type: String,
-            default: ''
-        },
         isList:{
             type: Boolean,
             default: false
         },
         winList:{
-            type: Array,
+            type: Object,
             default: function(){
-                return []
+                return {}
             }
         }
     },
     watch: {
-        winList:function (newV) {
-            this.prize1 = newV
-            // this.prize2 = []
-            // this.prize3 = []
-            // const that = this
-            // newV.forEach((v)=>{
-            //     if(v.prizeType === 'prize1'){
-            //         that.prize1.push(v)
-            //     }
-            //     if(v.prizeType === 'prize2'){
-            //         that.prize2.push(v)
-            //     }
-            //     if(v.prizeType === 'prize3'){
-            //         that.prize3.push(v)
-            //     }
-            // })
+        winList:{
+            immediate:true,
+            handler(newV){ 
+                console.log(newV)
+                this.prize = newV.prize
+                this.prize1 = newV.prize1
+                this.prize2 = newV.prize2
+                this.prize3 = newV.prize3
+            }
         }
     },
     data () {
         return {
+            prize:[],
             prize1:[],
-            // prize2:[],
-            // prize3:[]
+            prize2:[],
+            prize3:[]
         }
     },
     methods:{
-        reset(){
-            this.$emit('reset')
-        },
         submit(){
             this.$emit('submit')
         },
         goon(){
             this.$emit('goon')
         },
-        realReset(){
-            const that = this
-            axios.get('/api/reset')
-            .then(function (response) {
-                console.log(response)
-                that.reset()
-            })
-            .catch(function (error) {
-            console.log(error);
-            })
-        }
     }
 }
 </script>
@@ -244,10 +233,10 @@ export default {
     position: absolute
     width: 650px
     height: 650px
-    background: rgba(255, 188, 0, 0.97)
+    background: rgba(255, 188, 0, 0.95)
     border-radius: 24px
     border: 3px solid rgba(226,186,48,0.52)
-    top: -100px
+    top: -150px
     left: -100px
     z-index: 10000
     .fff{
@@ -280,26 +269,29 @@ export default {
         position: absolute
         top 0px
         z-index 99999
+        h2{
+            margin 10px 0
+        }
         .avatar{
             width: 100%
-            height: 280px
-            margin-top: 50px
+            // height: 280px
             display: flex
             flex-wrap: wrap
-            justify-content: space-between
             align-content: space-between
             .avatar-item{
                 display: flex
                 flex-direction: column
                 align-items: center
                 justify-content: center
+                box-sizing: border-box
+                padding 0 10px
             }
         }
     }
     .but2{
         user-select none
         margin: auto
-        width: 50%
+        width: 80%
         height: 40px
         cursor pointer
         background-color: rgb(226, 56, 48, 0.9);
@@ -314,20 +306,17 @@ export default {
     .but{
         user-select none
         float: left
-        width: 45%
-        height: 40px
+        width: 100%
+        height: 50px
         cursor pointer
         background-color: rgb(226, 56, 48, 0.9);
         border-radius: 20px
         text-align: center
-        line-height 40px
+        line-height 50px
         box-shadow: 0px 3px 5px #ffffff;
     }
     .but:hover{
         transform: scale(1.1)
-    }
-    .but1{
-        margin-right: 10%
     }
 }
 .firework-grp {
