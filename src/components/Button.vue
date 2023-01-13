@@ -19,7 +19,7 @@ export default {
     },
     methods: {
         start(){
-            if(this.title === "已无奖品"){
+            if(this.title !== "点击抽奖"){
                 return
             }
             this.$emit('toggle')

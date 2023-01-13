@@ -109,7 +109,7 @@ export default {
         console.log('倒计时结束的回调函数')
       },
       //获取所有名单
-      getAllData(reset){
+      async getAllData(reset){
         this.mask = true
         const that = this
         axios.get('/api/allList')
@@ -140,6 +140,11 @@ export default {
           }
           that.mask = false
         });  
+        await this.getUserList()
+        if(this.datas.length === 0){
+          this.butTitle = '已无奖品'
+          return
+        }
       },
       // 获取获奖名单
       async getLuckyList(){
@@ -166,6 +171,7 @@ export default {
       this.isList = true
     },
     async toggle() {
+      
       let reward = JSON.parse(sessionStorage.getItem("rewardData"))
       this.start1 = true
       this.showWiner = false
@@ -201,7 +207,6 @@ export default {
           that.showWiner = true
       },9500)
       await this.getUserList()
-      console.log(this.datas)
       this.a = this.getRandomInt(0,this.datas.length)
       console.log(this.a)
       let ind = this.allList.findIndex((v) => {

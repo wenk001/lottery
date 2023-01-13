@@ -53,7 +53,7 @@ export default {
 .home{
   width: 100%
   height: 100vh
-  background: url('../assets/bg.jpg')
+  background: url('../assets/tu.webp')
   background-repeat: no-repeat
   background-size: cover
   .head{
