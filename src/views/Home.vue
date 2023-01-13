@@ -2,7 +2,7 @@
   <div class="home">
     <div class="head" :style="`zoom:${zoom}`">
       <!-- <img alt="bqkj" src="../assets/logo.png"> -->
-      <h1>磅旗科技年会抽奖</h1>
+      <h1>磅旗科技2023年会抽奖</h1>
     </div>
     <div class="tools">
       <Music :isOpen="isOpen" :openEndMusic="openEndMusic"/>

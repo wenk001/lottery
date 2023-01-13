@@ -104,10 +104,12 @@ methods:{
         this.resetData = !this.resetData
     },
     changeNum(){
-        this.rewardData[0].num = this.rewardData[0].num - this.rewardData[0].num1
-        if(this.rewardData[0].num < this.rewardData[0].num1){
-            this.rewardData[0].num1 = this.rewardData[0].num
-        }
+        let reward = JSON.parse(sessionStorage.getItem("rewardData"))
+        this.rewardData[0].num = reward[0].num
+        this.rewardData[0].num1 = reward[0].num1
+        // if(this.rewardData[0].num < this.rewardData[0].num1){
+        //     this.rewardData[0].num1 = this.rewardData[0].num
+        // }
     },
     openMusic(v){
         this.$emit('openMusic',v)

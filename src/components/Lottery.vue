@@ -145,7 +145,6 @@ export default {
         await this.getUserList()
         if(this.datas.length === 0){
           this.butTitle = '已无奖品'
-          return
         }
       },
       // 获取获奖名单
@@ -160,7 +159,7 @@ export default {
         const that = this
         let {data} = await axios.get('/api/userList')
         that.datas = data.data
-          console.log(that.datas)
+        console.log(that.datas)
       },
       getRandomInt(min, max) {
         min = Math.ceil(min);
@@ -182,6 +181,13 @@ export default {
     },
     async toggle() {
       let reward = JSON.parse(sessionStorage.getItem("rewardData"))
+      await this.getUserList()
+      if(reward[0].num1 > this.datas.length){
+        reward[0].num1 = this.datas.length
+        sessionStorage.setItem("rewardData",JSON.stringify(reward))
+      }
+      this.aaa = this.getSomeBody(reward[0].num1, 0, this.datas.length)
+      console.log(this.aaa)
       this.$emit('openMusic',true)
       this.start1 = true
       this.showWiner = false
@@ -192,40 +198,7 @@ export default {
       this.timer = setInterval(()=>{
         window.TagCanvas.SetSpeed('rootcanvas', [that.getRandomInt(2,11), that.getRandomInt(0,7)]);
       },1000)
-      // setTimeout(()=>{
-      //   window.TagCanvas.SetSpeed('rootcanvas', [2, 2]);
-      // },500)
-      // setTimeout(()=>{
-      //   window.TagCanvas.SetSpeed('rootcanvas', [3, 2]);
-      // },2000)
-      // setTimeout(()=>{
-      //   window.TagCanvas.SetSpeed('rootcanvas', [0, 4]);
-      // },4000)
-      // setTimeout(()=>{
-      //   window.TagCanvas.SetSpeed('rootcanvas', [5, 0]);
-      // },6000)
-      // setTimeout(()=>{
-      //   window.TagCanvas.SetSpeed('rootcanvas', [2, 6]);
-      // },6000)
-      // setTimeout(()=>{
-      //   window.TagCanvas.SetSpeed('rootcanvas', [10, 1]);
-      // },8000)
-      // const that = this
-      // setTimeout(()=>{
-      //     window.TagCanvas.TagToFront('rootcanvas', { index : 0  })
-      //     window.TagCanvas.Reload('rootcanvas')
-      //     that.$emit('openMusic',false)
-      //     that.$emit('startEndMusic',true)
-      //     let par = []
-      //     for(let i = 0; i < that.aaa.length; i++){
-      //       par.push({name: that.datas[that.aaa[i]].nickname,url: that.datas[that.aaa[i]].imgurl})
-      //     }
-      //     that.nameUrlList = par
-      //     that.showWiner = true
-      // },9500)
-      await this.getUserList()
-      this.aaa = this.getSomeBody(reward[0].num1, 0, this.datas.length)
-      console.log(this.aaa)
+      
     },
     stop(){
       if(this.timer){
